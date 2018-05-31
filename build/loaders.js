@@ -28,6 +28,10 @@ export const tsLoader = {
     },
 }
 
+export const coffeescriptLoader = {
+    loader: 'coffeescript-loader',
+}
+
 export const styleLoader = {
     // style-loader's general method of inserting <style> tags into the `document` doesn't
     //  seem to play nicely with the content_script. It would be nice to find a work-around
@@ -78,6 +82,12 @@ export default ({ mode, context, isCI = false }) => {
         use: [babelLoader, tsLoader],
     }
 
+    const coffee = {
+        test: /\.coffee?$/,
+        include: path.resolve(context, './src/direct-linking'),
+        use: [babelLoader, coffeescriptLoader],
+    }
+
     const cssModules = {
         test: /\.css$/,
         include: path.resolve(context, './src'),
@@ -97,12 +107,12 @@ export default ({ mode, context, isCI = false }) => {
     }
 
     if (isCI) {
-        return [main, cssModules, cssVanilla]
+        return [main, coffee, cssModules, cssVanilla]
     }
 
     if (mode !== 'production') {
         main.use = [threadLoader, ...main.use]
     }
 
-    return [main, lint, cssModules, cssVanilla]
+    return [main, coffee, lint, cssModules, cssVanilla]
 }
